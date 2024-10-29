@@ -17,7 +17,7 @@ public class PimsContext : DbContext
     {
         // Define composite key for the many-to-many relationship
         modelBuilder.Entity<ProductCategory>()
-            .HasKey(pc => new { pc.ProductID, pc.CategoryID });
+            .HasKey(pc => new { pc.ProductId, pc.CategoryId });
 
         // Ensure SKU is unique
         modelBuilder.Entity<Product>()

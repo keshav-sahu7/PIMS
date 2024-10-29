@@ -7,16 +7,45 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.14">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.26" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.26">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.14" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.26" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.26">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove="Models\Transcation.cs" />
+      <Compile Remove="WeatherForecast.cs" />
+      <Compile Remove="Controllers\WeatherForecastController.cs" />
+      <Compile Remove="Services\Models\**" />
+      <Compile Remove="Services\NewDirectory\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\ProductService\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Services\Models\**" />
+      <EmbeddedResource Remove="Services\NewDirectory\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Services\Models\**" />
+      <Content Remove="Services\NewDirectory\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Services\Models\**" />
+      <None Remove="Services\NewDirectory\**" />
     </ItemGroup>
 
 </Project>
