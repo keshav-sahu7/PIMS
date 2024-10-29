@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PIMS.Models;
 
+namespace PIMS.Services.CategoryServices;
+
 public class CategoryService : ICategoryService
 {
     private readonly PimsContext _dbContext;
@@ -12,7 +14,7 @@ public class CategoryService : ICategoryService
 
     public CategoryOutput CreateCategory(CategoryInput categoryInput)
     {
-        var category = categoryInput.GetCategoryEntity();
+        var category = categoryInput.ToCategoryEntity();
         
         _dbContext.Categories.Add(category);
         _dbContext.SaveChanges();
@@ -30,5 +32,12 @@ public class CategoryService : ICategoryService
         }
 
         return new CategoryOutput(categoryInfo);
+    }
+
+    public async Task<List<CategoryOutput>> GetCategories()
+    {
+        var categoryInfoList = await (from category in _dbContext.Categories
+            select new CategoryOutput(category)).ToListAsync();
+        return (categoryInfoList);
     }
 }

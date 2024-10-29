@@ -3,7 +3,7 @@ using PIMS.Models;
 public class CategoryInput
 {
     
-    public Category GetCategoryEntity()
+    public Category ToCategoryEntity()
     {
         Category category = new Category()
         {
