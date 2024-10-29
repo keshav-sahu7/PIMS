@@ -33,7 +33,8 @@ public class ProductController : ControllerBase
     {
         try
         {
-            var result = _productService.UpdateProduct(productid, productInput);
+            productInput.ProductId = productid;
+            var result = _productService.UpdateProduct(productInput);
             return NoContent();
         }
         catch (Exception ex)
@@ -42,12 +43,12 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPatch("{productid}/adjust-price")]
-    public IActionResult AdjustPrice(string productid, PriceAdjustmentInput adjustmentInput)
+    [HttpPut("/adjust-price")]
+    public IActionResult AdjustPrice(PriceAdjustmentInput adjustmentInput)
     {
         try
         {
-            var result = _productService.AdjustPrice(productid, adjustmentInput);
+            var result = _productService.AdjustPrice(adjustmentInput);
             return NoContent();
         }
         catch (Exception ex)
