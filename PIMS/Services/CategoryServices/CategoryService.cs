@@ -1,29 +1,32 @@
 using Microsoft.EntityFrameworkCore;
 using PIMS.Models;
+using PIMS.Repository;
 
 namespace PIMS.Services.CategoryServices;
 
 public class CategoryService : ICategoryService
 {
-    private readonly PimsContext _dbContext;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<Category> _categories;
 
-    public CategoryService(PimsContext dbContext)
+    public CategoryService(IUnitOfWork dbContext)
     {
-        _dbContext = dbContext;
+        _unitOfWork = dbContext;
+        _categories = _unitOfWork.GetRepository<Category>();
     }
 
     public CategoryOutput CreateCategory(CategoryInput categoryInput)
     {
         var category = categoryInput.ToCategoryEntity();
         
-        _dbContext.Categories.Add(category);
-        _dbContext.SaveChanges();
+        _categories.Add(category);
+        _unitOfWork.SaveChangesAsync();
         return new CategoryOutput(category);
     }
 
     public CategoryOutput GetCategoryById(string categoryId)
     {
-        var categoryInfo = (from category in _dbContext.Categories
+        var categoryInfo = (from category in _categories.GetAll()
             where category.CategoryId == categoryId
             select category).FirstOrDefault();
         if (categoryInfo == null)
@@ -36,7 +39,7 @@ public class CategoryService : ICategoryService
 
     public async Task<List<CategoryOutput>> GetCategories()
     {
-        var categoryInfoList = await (from category in _dbContext.Categories
+        var categoryInfoList = await (from category in _categories.GetAll()
             select new CategoryOutput(category)).ToListAsync();
         return (categoryInfoList);
     }

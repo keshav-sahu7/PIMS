@@ -1,29 +1,31 @@
 using PIMS.Models;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PIMS.Repository;
 using PIMS.Services.UserServices;
 using PIMS.Utility;
 
 public class UserService : IUserService
 {
-    private readonly PimsContext _dbContext;
-
-    public UserService(PimsContext dbContext)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<User> _users;
+    public UserService(IUnitOfWork unitOfWork)
     {
-        _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
+        _users = _unitOfWork.GetRepository<User>();
     }
 
     public async Task<UserInfoOutput> RegisterUser(UserRegistrationInput registrationInput)
     {
         User user = registrationInput.ToUserEntity();
-        _dbContext.Add(user);
-        await _dbContext.SaveChangesAsync();
+        _users.Add(user);
+        await _unitOfWork.SaveChangesAsync();
         return new UserInfoOutput(user);
     }
 
     public async Task<UserLoginOutput> Login(UserLoginInput loginInput)
     {
-        var user = await (from usr in _dbContext.Users
+        var user = await (from usr in _users.GetAll()
             where usr.Username == loginInput.Username
             select usr).FirstOrDefaultAsync();
         if (user == null || !VerifyPassword(user.PasswordHash, loginInput.Password))
@@ -37,7 +39,7 @@ public class UserService : IUserService
 
     public async Task<UserInfoOutput> GetUserById(string userId)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.UserId == userId);
+        var user = await _users.GetAll().FirstOrDefaultAsync(user => user.UserId == userId);
         if (user == null)
         {
             throw new Exception("User not found.");

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PIMS.Utility;
+using PIMS.Repository;
 
 public class Startup
 {
@@ -9,20 +9,16 @@ public class Startup
     {
         _configuration = configuration;
     }
-
-    // Configure services
+    
     public void ConfigureServices(IServiceCollection services)
     {
-        // Add controllers
         services.AddControllers();
-
-        services.AddPimsContext(_configuration);
-        // Add Swagger for API documentation
+        
+        services.RegisterRepository(_configuration["DbConnectionString"]);
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
     }
 
-    // Configure the HTTP request pipeline
     public void Configure(WebApplication app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())

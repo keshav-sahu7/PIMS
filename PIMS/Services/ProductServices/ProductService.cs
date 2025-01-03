@@ -1,50 +1,59 @@
 using LinqKit;
+using System.Threading.Tasks;
 using PIMS.Models;
-using PIMS.Services.ProductServices;
+using PIMS.Repository;
+
+
+namespace PIMS.Services.ProductServices;
 
 public class ProductService : IProductService
 {
-    private readonly PimsContext _dbContext; // Inject repository for data access
-
-    public ProductService(PimsContext dbContext)
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<Product> _products;
+    private readonly IRepository<ProductCategory> _productCategories;
+    private readonly IRepository<Category> _categories;
+    public ProductService(IUnitOfWork unitOfWork)
     {
-        _dbContext = dbContext;
+        _unitOfWork = unitOfWork;
+        _products = _unitOfWork.GetRepository<Product>();
+        _productCategories = _unitOfWork.GetRepository<ProductCategory>();
+        _categories = _unitOfWork.GetRepository<Category>();
     }
 
-    public string CreateProduct(ProductInput productInput)
+    public async Task<string> CreateProduct(ProductInput productInput)
     {
         // Create and save the product
         Product product = productInput.ToProudctEntity();
-        _dbContext.Products.Add(product);
+        _products.Add(product);
 
         if (productInput.Hascategories())
         {
             List<ProductCategory> productCategories = productInput.ToProductCategoryEntities();
-            _dbContext.ProductCategories.AddRange(productCategories);
+            _productCategories.AddMultiple(productCategories);
         }
         
-        _dbContext.SaveChanges();
+        await _unitOfWork.SaveChangesAsync();
         
         return product.ProductId;
     }
 
-    public bool UpdateProduct(ProductInput productInput)
+    public async Task<bool> UpdateProduct(ProductInput productInput)
     {
-        var product = _dbContext.Products.FirstOrDefault(pr => pr.ProductId == productInput.ProductId);
+        var product = _products.GetAll().FirstOrDefault(pr => pr.ProductId == productInput.ProductId);
         if (product == null)
         {
             return false;
         }
 
         product = productInput.UpdateProductEntity(product);
-        _dbContext.Update(product);
-        _dbContext.SaveChanges();
+        _products.Update(product);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
-    public bool AdjustPrice(PriceAdjustmentInput adjustmentInput)
+    public async Task<bool> AdjustPrice(PriceAdjustmentInput adjustmentInput)
     {
-        var productList = _dbContext.Products.Where(pr => adjustmentInput.ProductIds.Contains(pr.ProductId)).ToList();
+        var productList = _products.GetAll().Where(pr => adjustmentInput.ProductIds.Contains(pr.ProductId)).ToList();
 
         if (adjustmentInput.PercentageDecrease.HasValue)
         {
@@ -60,17 +69,17 @@ public class ProductService : IProductService
                 product.Price = product.Price - adjustmentInput.FixedAmount.Value;
             });
         }
-
-        _dbContext.UpdateRange(productList);
-        _dbContext.SaveChanges();
+        
+        _products.UpdateMultiple(productList);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 
     public ProductOutput GetProductById(string productId)
     {
-        var productInfo = (from product in _dbContext.Products
-            let categoryList = (from productCategory in _dbContext.ProductCategories
-                join category in _dbContext.Categories on productCategory.CategoryId equals category.CategoryId
+        var productInfo = (from product in _products.GetAll()
+            let categoryList = (from productCategory in _productCategories.GetAll()
+                join category in _categories.GetAll() on productCategory.CategoryId equals category.CategoryId
                 where productCategory.ProductId == product.ProductId
                 select category.Name).ToList()
             where product.ProductId == productId
@@ -89,9 +98,7 @@ public class ProductService : IProductService
     public List<ProductOutput> GetProducts(ProductFilterInput filter)
     {
         var predicate = PredicateBuilder.New<Product>(true);
-
-        var products = _dbContext.Products.AsQueryable();
-        
+        var filteredProducts = _products.GetAll();
         if (!string.IsNullOrEmpty(filter.ProductName))
         {
             predicate = predicate.And(product => product.Name.Contains(filter.ProductName));
@@ -99,9 +106,9 @@ public class ProductService : IProductService
 
         if (filter.CategoryIds?.Count > 0)
         {
-            products = from product in products
-                join productCategory in _dbContext.ProductCategories on product.ProductId equals productCategory.ProductId
-                join category in _dbContext.Categories on productCategory.CategoryId equals category.CategoryId
+            filteredProducts = from product in filteredProducts
+                join productCategory in _productCategories.GetAll() on product.ProductId equals productCategory.ProductId
+                join category in _categories.GetAll() on productCategory.CategoryId equals category.CategoryId
                 where filter.CategoryIds.Contains(category.CategoryId)
                 select product;
         }
@@ -116,9 +123,9 @@ public class ProductService : IProductService
             predicate = predicate.And(product => product.Price >= filter.MinPrice.Value);
         }
 
-        var query = from product in products.Where(predicate)
-            let categoryList = (from productCategory in _dbContext.ProductCategories
-                join category in _dbContext.Categories on productCategory.CategoryId equals category.CategoryId
+        var query = from product in filteredProducts.Where(predicate)
+            let categoryList = (from productCategory in _productCategories.GetAll()
+                join category in _categories.GetAll() on productCategory.CategoryId equals category.CategoryId
                 where productCategory.ProductId == product.ProductId
                 select category.Name).ToList()
             select new ProductOutput(product)
