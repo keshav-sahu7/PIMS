@@ -2,7 +2,7 @@ namespace PIMS.Services.UserServices;
 
 public interface IUserService
 {
-    UserInfoOutput RegisterUser(UserRegistrationInput registrationDto);
-    string Login(UserLoginInput loginDto);
-    UserInfoOutput GetUserById(string userId);
+    Task<UserInfoOutput> RegisterUser(UserRegistrationInput registrationInput);
+    Task<UserLoginOutput> Login(UserLoginInput loginInput);
+    Task<UserInfoOutput> GetUserById(string userId);
 }

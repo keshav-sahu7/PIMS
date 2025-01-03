@@ -15,13 +15,7 @@ public class PimsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Define composite key for the many-to-many relationship
         modelBuilder.Entity<ProductCategory>()
             .HasKey(pc => new { pc.ProductId, pc.CategoryId });
-
-        // Ensure SKU is unique
-        modelBuilder.Entity<Product>()
-            .HasIndex(p => p.SKU)
-            .IsUnique();
     }
 }

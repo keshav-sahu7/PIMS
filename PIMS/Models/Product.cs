@@ -7,7 +7,7 @@ namespace PIMS.Models;
 public class Product
 {
     [Key]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; }    // stock keeping unit
 
     [Required, MaxLength(100)]
     public string Name { get; set; }
@@ -15,10 +15,7 @@ public class Product
     public string Description { get; set; }
 
     [Required]
-    public decimal Price { get; set; }
-
-    [Required, MaxLength(50)]
-    public string SKU { get; set; }
+    public decimal Price { get; set; } 
     
     public string CreatedBy { get; set; }
     public User CreatedByNevigation { get; set; }

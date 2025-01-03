@@ -18,5 +18,5 @@ public class ProductOutput
     public decimal Price { get; set; }
     public List<string> CategoryList { get; set; }
     public DateTime? CreatedDate { get; set; }
-    public string? CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
 }

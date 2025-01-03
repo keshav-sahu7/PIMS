@@ -11,10 +11,7 @@ public class User
 
     [Required]
     public byte[] PasswordHash { get; set; }
-
-    [Required]
-    public byte[] PasswordSalt { get; set; }
-
+    
     [Required, MaxLength(20)]
     public string Role { get; set; } // Admin, User
 }
