@@ -15,4 +15,8 @@ dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
+## to add nuget packages
+```bash
+dotnet add package LinqKit
+```
 
