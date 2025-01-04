@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PIMS.Repository;
+using PIMS.Services.CategoryServices;
+using PIMS.Services.InventoryServices;
+using PIMS.Services.ProductServices;
+using PIMS.Services.UserServices;
 
 public class Startup
 {
@@ -15,6 +19,10 @@ public class Startup
         services.AddControllers();
         
         services.RegisterRepository(_configuration["DbConnectionString"]);
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IInventoryService, InventoryService>();
+        services.AddTransient<IProductService, ProductService>();
+        services.AddTransient<ICategoryService, CategoryService>();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
     }

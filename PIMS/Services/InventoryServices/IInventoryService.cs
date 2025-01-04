@@ -2,7 +2,9 @@ namespace PIMS.Services.InventoryServices;
 
 public interface IInventoryService
 {
-    void AdjustInventory(string productId, InventoryAdjustmentInput adjustmentDto);
-    IEnumerable<LowInventoryProductOutput> GetLowInventoryProducts();
-    void AuditInventory(InventoryAuditInput auditDto);
+    Task<List<InventoryProductOutput>> GetAllInventoriesAsync();
+    Task<InventoryProductOutput> GetInventoryByIdAsync(string inventoryId);
+    Task<string> AddInventoryAsync(InventoryProductInput input);
+    Task<bool> UpdateInventoryAsync( InventoryAdjustmentInput adjustmentInput);
+    Task<bool> PerformAuditAsync(string inventoryId, InventoryAuditInput auditInput);
 }

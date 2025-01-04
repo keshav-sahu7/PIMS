@@ -14,11 +14,11 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateCategory(CategoryInput categoryDto)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryInput categoryDto)
     {
         try
         {
-            var result = _categoryService.CreateCategory(categoryDto);
+            var result = await _categoryService.CreateCategory(categoryDto);
             return Created(nameof(GetCategoryById), result);
         }
         catch (Exception ex)
@@ -43,13 +43,13 @@ public class CategoryController : ControllerBase
     }
     
     [HttpGet]
-    public IActionResult GetCategories()
+    public async Task<IActionResult> GetCategories()
     {
         try
         {
-            var category = _categoryService.GetCategories();
-            if (category == null) return NotFound();
-            return Ok(category);
+            var categories = await _categoryService.GetCategories();
+            if (categories == null) return NotFound();
+            return Ok(categories);
         }
         catch (Exception ex)
         {

@@ -14,12 +14,13 @@ public class InventoryController : ControllerBase
         _inventoryService = inventoryService;
     }
 
-    [HttpPost("{productId}/adjust")]
-    public IActionResult AdjustInventory(string productId, InventoryAdjustmentInput adjustmentDto)
+    [HttpPost("{inventoryId}/adjust")]
+    public async Task<IActionResult> AdjustInventory(string inventoryId, [FromBody] InventoryAdjustmentInput adjustmentDto)
     {
         try
         {
-            _inventoryService.AdjustInventory(productId, adjustmentDto);
+            adjustmentDto.InventoryId = inventoryId;
+            await _inventoryService.UpdateInventoryAsync(adjustmentDto);
             return NoContent();
         }
         catch (Exception ex)
@@ -27,28 +28,42 @@ public class InventoryController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-
-    [HttpGet("low-inventory")]
-    public IActionResult GetLowInventoryProducts()
+    
+    [HttpPost("{inventoryId}/audit")]
+    public async Task<IActionResult> AuditInventory(string inventoryId, [FromBody] InventoryAuditInput auditDto)
     {
         try
         {
-            var lowInventoryProducts = _inventoryService.GetLowInventoryProducts();
-            return Ok(lowInventoryProducts);
+            await _inventoryService.PerformAuditAsync(inventoryId, auditDto);
+            return NoContent();
         }
         catch (Exception ex)
         {
             return BadRequest(ex.Message);
         }
     }
-
-    [HttpPost("audit")]
-    public IActionResult AuditInventory(InventoryAuditInput auditDto)
+    
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllInventory()
     {
         try
         {
-            _inventoryService.AuditInventory(auditDto);
-            return NoContent();
+            var inventoryData = await _inventoryService.GetAllInventoriesAsync();
+            return Ok(inventoryData);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpGet("{inventoryId}")]
+    public async Task<IActionResult> GetAllInventory(string inventoryId)
+    {
+        try
+        {
+            var inventoryData = await _inventoryService.GetInventoryByIdAsync(inventoryId);
+            return Ok(inventoryData);
         }
         catch (Exception ex)
         {

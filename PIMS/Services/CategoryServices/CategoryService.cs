@@ -15,12 +15,12 @@ public class CategoryService : ICategoryService
         _categories = _unitOfWork.GetRepository<Category>();
     }
 
-    public CategoryOutput CreateCategory(CategoryInput categoryInput)
+    public async Task<CategoryOutput> CreateCategory(CategoryInput categoryInput)
     {
         var category = categoryInput.ToCategoryEntity();
         
         _categories.Add(category);
-        _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return new CategoryOutput(category);
     }
 

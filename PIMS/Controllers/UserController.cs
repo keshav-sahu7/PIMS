@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PIMS.Services.UserServices;
 
@@ -13,13 +14,15 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
+    
 
+    [AllowAnonymous]
     [HttpPost("register")]
-    public IActionResult Register(UserRegistrationInput registrationDto)
+    public async Task<IActionResult> Register([FromBody] UserRegistrationInput registrationDto)
     {
         try
         {
-            var result = _userService.RegisterUser(registrationDto);
+            var result = await _userService.RegisterUser(registrationDto);
             return Created(nameof(Register), result);
         }
         catch (Exception ex)
@@ -27,13 +30,14 @@ public class UserController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-
+    
+    [AllowAnonymous]
     [HttpPost("login")]
-    public IActionResult Login(UserLoginInput loginDto)
+    public async Task<IActionResult> Login([FromBody] UserLoginInput loginDto)
     {
         try
         {
-            var token = _userService.Login(loginDto);
+            var token = await _userService.Login(loginDto);
             return Ok(new { Token = token });
         }
         catch (Exception ex)
@@ -43,11 +47,11 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{userId}")]
-    public IActionResult GetUserById(string userId)
+    public async Task<IActionResult> GetUserById(string userId)
     {
         try
         {
-            var user = _userService.GetUserById(userId);
+            var user = await _userService.GetUserById(userId);
             if (user == null) return NotFound();
             return Ok(user);
         }

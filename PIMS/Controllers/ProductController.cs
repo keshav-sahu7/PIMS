@@ -15,11 +15,11 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateProduct(ProductInput productInput)
+    public async Task<IActionResult> CreateProduct([FromBody] ProductInput productInput)
     {
         try
         {
-            var productId = _productService.CreateProduct(productInput);
+            var productId = await _productService.CreateProduct(productInput);
             return Created(nameof(CreateProduct), new { id = productId });
         }
         catch (Exception ex)
@@ -29,12 +29,12 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{productid}")]
-    public IActionResult UpdateProduct(string productid, ProductInput productInput)
+    public async Task<IActionResult> UpdateProduct(string productid, [FromBody] ProductInput productInput)
     {
         try
         {
             productInput.ProductId = productid;
-            var result = _productService.UpdateProduct(productInput);
+            var result = await _productService.UpdateProduct(productInput);
             return NoContent();
         }
         catch (Exception ex)
@@ -44,11 +44,11 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("/adjust-price")]
-    public IActionResult AdjustPrice(PriceAdjustmentInput adjustmentInput)
+    public async Task<IActionResult> AdjustPrice([FromBody]PriceAdjustmentInput adjustmentInput)
     {
         try
         {
-            var result = _productService.AdjustPrice(adjustmentInput);
+            var result = await _productService.AdjustPrice(adjustmentInput);
             return NoContent();
         }
         catch (Exception ex)
@@ -74,8 +74,8 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public IActionResult GetProducts(ProductFilterInput filterInput)
+    [HttpPost("get-all")]
+    public IActionResult GetProducts([FromBody]ProductFilterInput filterInput)
     {
         try
         {
