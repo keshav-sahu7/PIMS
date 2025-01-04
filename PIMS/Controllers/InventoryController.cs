@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PIMS.Services.InventoryServices;
 
@@ -13,7 +14,8 @@ public class InventoryController : ControllerBase
     {
         _inventoryService = inventoryService;
     }
-
+    
+    [Authorize(Roles = "Admin")]
     [HttpPost("{inventoryId}/adjust")]
     public async Task<IActionResult> AdjustInventory(string inventoryId, [FromBody] InventoryAdjustmentInput adjustmentDto)
     {
@@ -28,7 +30,7 @@ public class InventoryController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+    [Authorize(Roles = "Admin")]
     [HttpPost("{inventoryId}/audit")]
     public async Task<IActionResult> AuditInventory(string inventoryId, [FromBody] InventoryAuditInput auditDto)
     {
@@ -43,6 +45,7 @@ public class InventoryController : ControllerBase
         }
     }
     
+    [Authorize(Roles = "Admin")]
     [HttpGet("all")]
     public async Task<IActionResult> GetAllInventory()
     {
@@ -58,7 +61,7 @@ public class InventoryController : ControllerBase
     }
     
     [HttpGet("{inventoryId}")]
-    public async Task<IActionResult> GetAllInventory(string inventoryId)
+    public async Task<IActionResult> GetInventory(string inventoryId)
     {
         try
         {

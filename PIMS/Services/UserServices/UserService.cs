@@ -1,7 +1,7 @@
 using PIMS.Models;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PIMS.Repository;
+using PIMS.Services.JwtTokenService;
 using PIMS.Services.UserServices;
 using PIMS.Utility;
 
@@ -9,10 +9,12 @@ public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<User> _users;
-    public UserService(IUnitOfWork unitOfWork)
+    private readonly IJwtTokenService _jwtTokenService;
+    public UserService(IUnitOfWork unitOfWork, IJwtTokenService jwtTokenService)
     {
         _unitOfWork = unitOfWork;
         _users = _unitOfWork.GetRepository<User>();
+        _jwtTokenService = jwtTokenService;
     }
 
     public async Task<UserInfoOutput> RegisterUser(UserRegistrationInput registrationInput)
@@ -54,6 +56,7 @@ public class UserService : IUserService
 
     private string GenerateToken(User user)
     {
-        return "";
+        var accessToken = _jwtTokenService.GenerateJwtToken(user.UserId, user.Role);
+        return accessToken;
     }
 }

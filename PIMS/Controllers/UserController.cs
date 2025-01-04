@@ -45,7 +45,8 @@ public class UserController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-
+    
+    [Authorize]
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUserById(string userId)
     {
